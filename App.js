@@ -1,39 +1,33 @@
 import React from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View, SafeAreaView } from "react-native";
+import GooglePlacesInput from "./GooglePlacesInput";
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Image
-        source={{ uri: "https://i.imgur.com/TkIrScD.png" }}
-        style={styles.logo}
-      />
-      <Text style={styles.instructions}>
-        To share a photo from your phone with a friend, just press the button
-        below!
-      </Text>
-
-      <TouchableOpacity
-        onPress={() => alert("Hello, world!")}
-        style={{ backgroundColor: "blue" }}
-      >
-        <Text style={{ fontSize: 20, color: "#fff" }}>Pick a photo</Text>
-      </TouchableOpacity>
-    </View>
+    <SafeAreaView>
+      <View style={styles.container}>
+        <View style={styles.input}>
+          <GooglePlacesInput
+            placeholder="Place A"
+            apiKey={process.env.REACT_NATIVE_GOOGLE_MAPS_API_KEY}
+          />
+        </View>
+        <View style={styles.input}>
+          <GooglePlacesInput
+            placeholder="Place B"
+            apiKey={process.env.REACT_NATIVE_GOOGLE_MAPS_API_KEY}
+          />
+        </View>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logo: {
-    width: 305,
-    height: 159,
-    marginBottom: 20,
+  container: {},
+  input: {
+    height: 44,
+    backgroundColor: "#f00",
   },
   instructions: {
     color: "#888",
