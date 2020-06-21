@@ -2,15 +2,17 @@ import React, { useState } from "react";
 import { View, StyleSheet, Image, Text, TextInput } from "react-native";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 
-const GooglePlacesInput = ({ apiKey, placeholder, onChange }) => {
+const GooglePlacesInput = ({ apiKey, index = 0, placeholder, onChange }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [value, setValue] = useState("Useless Placeholder");
 
   //  dynamic height based on whether the input is in focus
-  const height = (isFocused)? 120: 50;
-
+  const height = isFocused ? 120 : 54;
+  const zIndex = isFocused ? 2 : 1;
+  const top = 17 + (index * 54);
+  
   return (
-    <View style={[styles.container, { height } ]}>
+    <View style={[styles.container, { top, zIndex, height }]}>
       <GooglePlacesAutocomplete
         placeholder={placeholder}
         minLength={2}
@@ -22,7 +24,7 @@ const GooglePlacesInput = ({ apiKey, placeholder, onChange }) => {
           },
           onBlur: () => {
             setIsFocused(false);
-          }
+          },
         }}
         onPress={(data, details = null) => {
           // 'details' is provided when fetchDetails = true
@@ -31,27 +33,30 @@ const GooglePlacesInput = ({ apiKey, placeholder, onChange }) => {
             onChange([location.lat, location.lng]);
           }
         }}
-        onFail={error => console.error(error)}tvParallaxShiftDistanceX
+        onFail={(error) => console.error(error)}
+        tvParallaxShiftDistanceX
         currentLocation={true}
         query={{
           key: apiKey,
           language: "en",
+          components: "country:uk",
         }}
         styles={{
           textInputContainer: {
-            backgroundColor: 'rgba(0,0,0,0)',
+            backgroundColor: "rgba(0,0,0,0)",
             borderTopWidth: 0,
             borderBottomWidth: 0,
           },
           textInput: {
-            marginLeft: 0,
-            marginRight: 0,
+            marginTop:0,
+            marginLeft:0,
+            marginRight:0,
             height: 38,
-            color: '#5d5d5d',
+            color: "#5d5d5d",
             fontSize: 16,
           },
           predefinedPlacesDescription: {
-            color: '#1faadb',
+            color: "#1faadb",
           },
         }}
       />
@@ -61,9 +66,12 @@ const GooglePlacesInput = ({ apiKey, placeholder, onChange }) => {
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: 'center',
-    paddingTop: 10,
-    backgroundColor: '#ecf0f1',
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    justifyContent: "center",
+    backgroundColor: "#ecf0f1",
     padding: 8,
   },
 });

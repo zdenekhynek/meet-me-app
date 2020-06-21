@@ -30,7 +30,7 @@ export const fetchJourney = async (from, to) => {
   if (result.ok) {
     return (await result.json()).data;
   } else {
-    console.error("Error fetching journey");
+    console.error("Error fetching journeys from API");
   }
 };
 
@@ -85,11 +85,13 @@ export default function App() {
     <View style={styles.container}>
       <Text>{isLoading ? "Loading..." : "All good"}</Text>
       <GooglePlacesInput
+        index={0}
         placeholder="Place A"
         apiKey={process.env.REACT_NATIVE_GOOGLE_MAPS_API_KEY}
         onChange={handleFromChange}
       />
       <GooglePlacesInput
+        index={1}
         placeholder="Place B"
         apiKey={process.env.REACT_NATIVE_GOOGLE_MAPS_API_KEY}
         onChange={handleToChange}
