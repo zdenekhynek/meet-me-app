@@ -1,5 +1,11 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { StyleSheet, Text, View, SafeAreaView } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  SafeAreaView,
+  TouchableWithoutFeedback,
+} from "react-native";
 import GooglePlacesInput from "./GooglePlacesInput";
 import Map from "./Map";
 
@@ -24,6 +30,7 @@ export const fetchJourney = async (from, to) => {
     from.join(","),
     to.join(",")
   );
+
   console.log("fetchingJourney from url", url);
   const result = await fetch(url);
 
@@ -36,10 +43,13 @@ export const fetchJourney = async (from, to) => {
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(false);
-  const [from, setFrom] = useState([51.5698452, -0.0957309]);
-  const [to, setTo] = useState([51.4989235, -0.0817248]);
+  // const [from, setFrom] = useState([51.5698452, -0.0957309]);
+  // const [to, setTo] = useState([51.4989235, -0.0817248]);
+  const [from, setFrom] = useState(null);
+  const [to, setTo] = useState(null);
   const [midpoint, setMidpoint] = useState(null);
   const [polylines, setPolylines] = useState([]);
+  const [destination, setDestination] = useState("");
 
   const getJourneys = useCallback(async () => {
     setIsLoading(true);
@@ -56,6 +66,7 @@ export default function App() {
         return legs ? concatLegs(legs) : [];
       });
       setPolylines(journeyPolylines);
+      setDestination(data.destination);
     }
     setIsLoading(false);
   }, [from, to]);
@@ -82,8 +93,7 @@ export default function App() {
   });
 
   return (
-    <View style={styles.container}>
-      <Text>{isLoading ? "Loading..." : "All good"}</Text>
+    <SafeAreaView style={styles.container}>
       <GooglePlacesInput
         index={0}
         placeholder="Place A"
@@ -104,7 +114,17 @@ export default function App() {
         onFromChange={handleFromChange}
         onToChange={handleToChange}
       />
-    </View>
+      {isLoading ? (
+        <View style={styles.loader}>
+          <Text style={styles.loaderText}>Calculating your journeys...</Text>
+        </View>
+      ) : null}
+      {destination ? (
+        <View style={styles.destination}>
+          <Text style={styles.destinationText}>Meet at {destination}.</Text>
+        </View>
+      ) : null}
+    </SafeAreaView>
   );
 }
 
@@ -119,5 +139,27 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginHorizontal: 15,
     marginBottom: 10,
+  },
+  loader: {
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    padding: 10,
+    backgroundColor: "#ecf0f1",
+    transform: [{ translateX: -90 }, { translateY: 10 }],
+  },
+  loaderText: {
+    color: "#5d5d5d",
+  },
+  destination: {
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+    padding: 20,
+    backgroundColor: "#000000",
+  },
+  destinationText: {
+    fontSize: 16,
+    color: "#ffffff",
   },
 });
