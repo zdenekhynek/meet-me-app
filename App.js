@@ -1,62 +1,31 @@
-import React, { useState, useCallback, useEffect } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  SafeAreaView,
-  TouchableWithoutFeedback,
-} from "react-native";
+import React, { useState, useCallback, useEffect, useContext } from "react";
+import { View, Text, StyleSheet, Button } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+
 import GooglePlacesInput from "./GooglePlacesInput";
-import Map from "./Map";
+import MapScreen, { fetchJourney, concatLegs } from "./MapScreen";
+import JourneyContext from "./JourneyContext";
+import JourneyProvider from "./JourneyProvider";
 
-export const concatLegs = (legs) => {
-  return legs.reduce((acc, leg) => {
-    return acc.concat(leg.coords);
-  }, []);
-};
-
-export const getJourneyApiUrl = (
-  hostUrl,
-  fromString = "0,0",
-  toString = "0,0"
-) => {
-  const endpoint = "api/v1/directions";
-  return `${hostUrl}/${endpoint}/${fromString}/${toString}`;
-};
-
-export const fetchJourney = async (from, to) => {
-  const url = getJourneyApiUrl(
-    process.env.REACT_NATIVE_APP_JOURNEY_API_HOST,
-    from.join(","),
-    to.join(",")
-  );
-
-  console.log("fetchingJourney from url", url);
-  const result = await fetch(url);
-
-  if (result.ok) {
-    return (await result.json()).data;
-  } else {
-    console.error("Error fetching journeys from API");
-  }
-};
-
-export default function App() {
+function HomeScreen({ navigation }) {
   const [isLoading, setIsLoading] = useState(false);
-  // const [from, setFrom] = useState([51.5698452, -0.0957309]);
-  // const [to, setTo] = useState([51.4989235, -0.0817248]);
-  const [from, setFrom] = useState(null);
-  const [to, setTo] = useState(null);
-  const [midpoint, setMidpoint] = useState(null);
-  const [polylines, setPolylines] = useState([]);
-  const [destination, setDestination] = useState("");
-
+  // const [from, setFrom] = useState(null);
+  // const [to, setTo] = useState(null);
+  const journeyContext = useContext(JourneyContext);
+  
   const getJourneys = useCallback(async () => {
     setIsLoading(true);
-    const data = await fetchJourney(from, to);
-    setMidpoint(data.midpoint);
 
-    const { journeys } = data;
+    console.log('app!');
+    console.log('journeyContext', journeyContext);
+    const data = await fetchJourney(journeyContext.from.coords, journeyContext.to.coords);
+    const { journeys, midpoint } = data;
+    
+    if (midpoint) {
+      journeyContext.setMidpoint(midpoint);
+    }
+    
     if (journeys) {
       const journeyPolylines = journeys.map((journey) => {
         if (!journey) {
@@ -65,35 +34,30 @@ export default function App() {
         const { legs } = journey;
         return legs ? concatLegs(legs) : [];
       });
-      setPolylines(journeyPolylines);
-      setDestination(data.destination);
+      journeyContext.setPolylines(journeyPolylines);
+      journeyContext.setDestination(data.destination);
+      navigation.navigate("Map");
     }
     setIsLoading(false);
-  }, [from, to]);
+  }, [journeyContext.from, journeyContext.to]);
+
+  const handleFromChange = useCallback((name, coords) => {
+    journeyContext.setFrom({ name, coords });
+  });
+
+  const handleToChange = useCallback((name, coords) => {
+    journeyContext.setTo({ name, coords });
+  });
 
   useEffect(() => {
-    if (from && to) {
+    if (journeyContext.from && journeyContext.to) {
       getJourneys();
     }
-  }, [from, to]);
-
-  const handleFromChange = useCallback((value) => {
-    setFrom(value);
-
-    //  reset values
-    setMidpoint(null);
-    setPolylines([]);
-  });
-  const handleToChange = useCallback((value) => {
-    setTo(value);
-
-    //  reset values
-    setMidpoint(null);
-    setPolylines([]);
-  });
+  }, [journeyContext.from, journeyContext.to]);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+      <Text>Logo</Text>
       <GooglePlacesInput
         index={0}
         placeholder="Place A"
@@ -106,25 +70,18 @@ export default function App() {
         apiKey={process.env.REACT_NATIVE_GOOGLE_MAPS_API_KEY}
         onChange={handleToChange}
       />
-      <Map
-        from={from}
-        to={to}
-        midpoint={midpoint}
-        polylines={polylines}
-        onFromChange={handleFromChange}
-        onToChange={handleToChange}
+      <Button
+        title="Go to Details"
+        onPress={() => {
+          navigation.navigate("Map");
+        }}
       />
       {isLoading ? (
         <View style={styles.loader}>
           <Text style={styles.loaderText}>Calculating your journeys...</Text>
         </View>
       ) : null}
-      {destination ? (
-        <View style={styles.destination}>
-          <Text style={styles.destinationText}>Meet at {destination}.</Text>
-        </View>
-      ) : null}
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -134,12 +91,6 @@ const styles = StyleSheet.create({
     backgroundColor: "gray",
   },
   input: {},
-  instructions: {
-    color: "#888",
-    fontSize: 18,
-    marginHorizontal: 15,
-    marginBottom: 10,
-  },
   loader: {
     position: "absolute",
     top: "50%",
@@ -151,15 +102,29 @@ const styles = StyleSheet.create({
   loaderText: {
     color: "#5d5d5d",
   },
-  destination: {
-    position: "absolute",
-    bottom: 0,
-    width: "100%",
-    padding: 20,
-    backgroundColor: "#000000",
-  },
-  destinationText: {
-    fontSize: 16,
-    color: "#ffffff",
-  },
 });
+
+const Stack = createStackNavigator();
+
+function App() {
+  return (
+    <JourneyProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Home">
+          <Stack.Screen
+            name="Home"
+            component={HomeScreen}
+            options={{ title: "MeetMe" }}
+          />
+          <Stack.Screen
+            name="Map"
+            component={MapScreen}
+            options={{ title: "Your journeys" }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </JourneyProvider>
+  );
+}
+
+export default App;

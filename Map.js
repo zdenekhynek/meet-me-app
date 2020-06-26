@@ -42,7 +42,7 @@ export default class Map extends Component {
         },
       ];
       this.mapRef.fitToCoordinates(coords, {
-        edgePadding: { top: 100, bottom: 100, left: 20, right: 20 },
+        edgePadding: { top: 100, bottom: 140, left: 20, right: 20 },
       });
     }
   }
