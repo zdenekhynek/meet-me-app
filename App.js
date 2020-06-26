@@ -4,21 +4,18 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 
 import GooglePlacesInput from "./GooglePlacesInput";
-import MapScreen, { fetchJourney, concatLegs } from "./MapScreen";
+import MapScreen, { fetchJourney, concatLegs, getDirections } from "./MapScreen";
+import DirectionsScreen from "./DirectionsScreen";
 import JourneyContext from "./JourneyContext";
 import JourneyProvider from "./JourneyProvider";
 
 function HomeScreen({ navigation }) {
   const [isLoading, setIsLoading] = useState(false);
-  // const [from, setFrom] = useState(null);
-  // const [to, setTo] = useState(null);
   const journeyContext = useContext(JourneyContext);
   
   const getJourneys = useCallback(async () => {
     setIsLoading(true);
 
-    console.log('app!');
-    console.log('journeyContext', journeyContext);
     const data = await fetchJourney(journeyContext.from.coords, journeyContext.to.coords);
     const { journeys, midpoint } = data;
     
@@ -34,8 +31,15 @@ function HomeScreen({ navigation }) {
         const { legs } = journey;
         return legs ? concatLegs(legs) : [];
       });
+      const directions = journeys.map((journey) => {
+        const { legs } = journey;
+        return getDirections(legs);
+      });
+      
       journeyContext.setPolylines(journeyPolylines);
       journeyContext.setDestination(data.destination);
+      journeyContext.setDirections(directions);
+      
       navigation.navigate("Map");
     }
     setIsLoading(false);
@@ -71,7 +75,7 @@ function HomeScreen({ navigation }) {
         onChange={handleToChange}
       />
       <Button
-        title="Go to Details"
+        title="Go to map"
         onPress={() => {
           navigation.navigate("Map");
         }}
@@ -119,6 +123,11 @@ function App() {
           <Stack.Screen
             name="Map"
             component={MapScreen}
+            options={{ title: "Your journeys" }}
+          />
+          <Stack.Screen
+            name="Directions"
+            component={DirectionsScreen}
             options={{ title: "Your journeys" }}
           />
         </Stack.Navigator>

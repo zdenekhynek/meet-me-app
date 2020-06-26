@@ -8,6 +8,7 @@ export default (props) => {
   const [midpoint, setMidpointState] = useState(null);
   const [destination, setDestinationState] = useState("");
   const [polylines, setPolylinesState] = useState([]);
+  const [directions, setDirectionsState] = useState([]);
 
   const setFrom = (from) => {
     setFromState(from);
@@ -29,17 +30,23 @@ export default (props) => {
     setPolylinesState(polylines);
   };
 
+  const setDirections = (directions) => {
+    setDirectionsState(directions);
+  };
+
   const journeyState = {
     from,
     to,
     midpoint,
     destination,
     polylines,
+    directions,
     setFrom,
     setTo,
     setMidpoint,
     setDestination,
     setPolylines,
+    setDirections,
   };
 
   return (

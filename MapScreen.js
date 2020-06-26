@@ -1,11 +1,5 @@
 import React, { useState, useCallback, useEffect, useContext } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  SafeAreaView,
-  TouchableWithoutFeedback,
-} from "react-native";
+import { StyleSheet, Text, View, SafeAreaView, Button } from "react-native";
 import JourneyContext from "./JourneyContext";
 import GooglePlacesInput from "./GooglePlacesInput";
 import Map from "./Map";
@@ -14,6 +8,12 @@ export const concatLegs = (legs) => {
   return legs.reduce((acc, leg) => {
     return acc.concat(leg.coords);
   }, []);
+};
+
+export const getDirections = (legs = []) => {
+  return legs.map((leg) => {
+    return leg.summary;
+  });
 };
 
 export const getJourneyApiUrl = (
@@ -42,7 +42,7 @@ export const fetchJourney = async (from, to) => {
   }
 };
 
-export default function App() {
+export default function MapScreen({ navigation }) {
   const [isLoading, setIsLoading] = useState(false);
   // const [from, setFrom] = useState([51.5698452, -0.0957309]);
   // const [to, setTo] = useState([51.4989235, -0.0817248]);
@@ -56,13 +56,16 @@ export default function App() {
 
   const getJourneys = useCallback(async () => {
     setIsLoading(true);
-    const data = await fetchJourney(journeyContext.from.coords, journeyContext.to.coords);
+    const data = await fetchJourney(
+      journeyContext.from.coords,
+      journeyContext.to.coords
+    );
     const { journeys, midpoint } = data;
 
     if (midpoint) {
       journeyContext.setMidpoint(midpoint);
     }
-    
+
     if (journeys) {
       const journeyPolylines = journeys.map((journey) => {
         if (!journey) {
@@ -71,8 +74,14 @@ export default function App() {
         const { legs } = journey;
         return legs ? concatLegs(legs) : [];
       });
+      const directions = journeys.map((journey) => {
+        const { legs } = journey;
+        return getDirections(legs);
+      });
+
       journeyContext.setPolylines(journeyPolylines);
       journeyContext.setDestination(data.destination);
+      journeyContext.setDirections(directions);
     }
     setIsLoading(false);
   }, [journeyContext.from, journeyContext.to]);
@@ -129,7 +138,15 @@ export default function App() {
       ) : null}
       {journeyContext.destination ? (
         <View style={styles.destination}>
-          <Text style={styles.destinationText}>Meet at {journeyContext.destination}.</Text>
+          <Text style={styles.destinationText}>
+            Meet at {journeyContext.destination}.
+          </Text>
+          <Button
+            title="Go"
+            onPress={() => {
+              navigation.navigate("Directions");
+            }}
+          />
         </View>
       ) : null}
     </SafeAreaView>
