@@ -1,5 +1,8 @@
 import React, { useState, useCallback, useEffect, useContext } from "react";
-import { StyleSheet, Text, View, SafeAreaView, Button } from "react-native";
+import { StyleSheet, Text, View, SafeAreaView } from "react-native";
+import { Button } from "react-native-elements";
+import Icon from "react-native-vector-icons/FontAwesome";
+
 import JourneyContext from "./JourneyContext";
 import GooglePlacesInput from "./GooglePlacesInput";
 import Map from "./Map";
@@ -112,14 +115,16 @@ export default function MapScreen({ navigation }) {
       <GooglePlacesInput
         index={0}
         value={journeyContext.from && journeyContext.from.name}
-        placeholder="Place A"
+        placeholder="Type your address"
+        theme="small"
         apiKey={process.env.REACT_NATIVE_GOOGLE_MAPS_API_KEY}
         onChange={handleFromChange}
       />
       <GooglePlacesInput
         index={1}
         value={journeyContext.to && journeyContext.to.name}
-        placeholder="Place B"
+        placeholder="Type friend's address"
+        theme="small"
         apiKey={process.env.REACT_NATIVE_GOOGLE_MAPS_API_KEY}
         onChange={handleToChange}
       />
@@ -138,14 +143,24 @@ export default function MapScreen({ navigation }) {
       ) : null}
       {journeyContext.destination ? (
         <View style={styles.destination}>
-          <Text style={styles.destinationText}>
-            Meet at {journeyContext.destination}.
-          </Text>
           <Button
-            title="Go"
+            title={`Meet at ${journeyContext.destination}.`}
+            buttonStyle={{
+              backgroundColor: "#362983",
+              borderRadius: 0,
+            }}
+            containerStyle={{
+              borderRadius: 0,
+            }}
+            titleStyle={{
+              fontSize: 16,
+              padding: 20,
+            }}
             onPress={() => {
               navigation.navigate("Directions");
             }}
+            icon={<Icon name="arrow-right" size={15} color="white" />}
+            iconRight
           />
         </View>
       ) : null}
@@ -156,7 +171,7 @@ export default function MapScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "gray",
+    backgroundColor: "#fff",
   },
   input: {},
   instructions: {
@@ -180,11 +195,5 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     width: "100%",
-    padding: 20,
-    backgroundColor: "#000000",
-  },
-  destinationText: {
-    fontSize: 16,
-    color: "#ffffff",
   },
 });

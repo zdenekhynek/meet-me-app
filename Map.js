@@ -78,7 +78,7 @@ export default class Map extends Component {
             }}
             title={"From"}
             description={"From"}
-            pinColor="blue"
+            pinColor="#dd007d"
             onDragEnd={({ nativeEvent: { coordinate } }) => {
               onFromChange([coordinate.latitude, coordinate.longitude]);
             }}
@@ -93,7 +93,7 @@ export default class Map extends Component {
             }}
             title={"To"}
             description={"To"}
-            pinColor="green"
+            pinColor="#006bb8"
             onDragEnd={({ nativeEvent: { coordinate } }) => {
               onToChange([coordinate.latitude, coordinate.longitude]);
             }}
@@ -108,7 +108,7 @@ export default class Map extends Component {
             }}
             title={"Midpoint"}
             description={"Midpoint"}
-            pinColor="red"
+            pinColor="#362983"
           />
         )}
         {polylines.map((polyline, i) => {

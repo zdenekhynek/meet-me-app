@@ -1,28 +1,37 @@
 import React, { useState, useCallback, useEffect, useContext } from "react";
-import { View, Text, StyleSheet, Button } from "react-native";
+import { Image, View, Text, StyleSheet } from "react-native";
+import { Button } from 'react-native-elements';
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
+import Icon from "react-native-vector-icons/FontAwesome";
 
 import GooglePlacesInput from "./GooglePlacesInput";
-import MapScreen, { fetchJourney, concatLegs, getDirections } from "./MapScreen";
+import MapScreen, {
+  fetchJourney,
+  concatLegs,
+  getDirections,
+} from "./MapScreen";
 import DirectionsScreen from "./DirectionsScreen";
 import JourneyContext from "./JourneyContext";
 import JourneyProvider from "./JourneyProvider";
 
 function HomeScreen({ navigation }) {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const journeyContext = useContext(JourneyContext);
-  
+
   const getJourneys = useCallback(async () => {
     setIsLoading(true);
 
-    const data = await fetchJourney(journeyContext.from.coords, journeyContext.to.coords);
+    const data = await fetchJourney(
+      journeyContext.from.coords,
+      journeyContext.to.coords
+    );
     const { journeys, midpoint } = data;
-    
+
     if (midpoint) {
       journeyContext.setMidpoint(midpoint);
     }
-    
+
     if (journeys) {
       const journeyPolylines = journeys.map((journey) => {
         if (!journey) {
@@ -35,11 +44,11 @@ function HomeScreen({ navigation }) {
         const { legs } = journey;
         return getDirections(legs);
       });
-      
+
       journeyContext.setPolylines(journeyPolylines);
       journeyContext.setDestination(data.destination);
       journeyContext.setDirections(directions);
-      
+
       navigation.navigate("Map");
     }
     setIsLoading(false);
@@ -59,32 +68,55 @@ function HomeScreen({ navigation }) {
     }
   }, [journeyContext.from, journeyContext.to]);
 
+  const buttonLabel = isLoading ? "Calculating your journeys..." : "See your journeys";
+
+  const shouldDisplayBtn = journeyContext.from && journeyContext.to;
+  const buttonOpacity = shouldDisplayBtn? 1 : 0;
+
   return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <Text>Logo</Text>
-      <GooglePlacesInput
-        index={0}
-        placeholder="Place A"
-        apiKey={process.env.REACT_NATIVE_GOOGLE_MAPS_API_KEY}
-        onChange={handleFromChange}
-      />
-      <GooglePlacesInput
-        index={1}
-        placeholder="Place B"
-        apiKey={process.env.REACT_NATIVE_GOOGLE_MAPS_API_KEY}
-        onChange={handleToChange}
-      />
-      <Button
-        title="Go to map"
-        onPress={() => {
-          navigation.navigate("Map");
-        }}
-      />
-      {isLoading ? (
+    <View style={styles.container}>
+      <Image source={require("./assets/logo.png")} style={styles.logo} />
+      <View style={styles.inputWrapper}>
+        <GooglePlacesInput
+          index={0}
+          placeholder="Type your address"
+          apiKey={process.env.REACT_NATIVE_GOOGLE_MAPS_API_KEY}
+          onChange={handleFromChange}
+        />
+        <GooglePlacesInput
+          index={1}
+          placeholder="Type friend's address"
+          apiKey={process.env.REACT_NATIVE_GOOGLE_MAPS_API_KEY}
+          onChange={handleToChange}
+        />
+      </View>
+        <Button
+          title={buttonLabel}
+          disabled={isLoading}
+          onPress={() => {
+            navigation.navigate("Map");
+          }}
+          containerStyle={{
+            opacity: buttonOpacity,
+          }}
+          buttonStyle={{
+            width: "100%",
+            padding: 15,
+            backgroundColor: "#362983",
+          }}
+          titleStyle={{
+            padding: 20,
+          }}
+          icon={!isLoading && <Icon name="arrow-right" size={15} color="white" />}
+          iconRight
+        />
+      
+
+      {/* {isLoading ? (
         <View style={styles.loader}>
           <Text style={styles.loaderText}>Calculating your journeys...</Text>
         </View>
-      ) : null}
+      ) : null} */}
     </View>
   );
 }
@@ -92,15 +124,26 @@ function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "gray",
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  logo: { width: 120, height: 102, marginTop: 0 },
+  inputWrapper: {
+    position: "relative",
+    width: "100%",
+    margin: 40,
+    padding: 20,
+    flexBasis: 150,
+    zIndex: 1,
   },
   input: {},
   loader: {
     position: "absolute",
-    top: "50%",
+    bottom: 20,
     left: "50%",
     padding: 10,
-    backgroundColor: "#ecf0f1",
+    color: "#000",
     transform: [{ translateX: -90 }, { translateY: 10 }],
   },
   loaderText: {
@@ -128,7 +171,7 @@ function App() {
           <Stack.Screen
             name="Directions"
             component={DirectionsScreen}
-            options={{ title: "Your journeys" }}
+            options={{ title: "Your directions" }}
           />
         </Stack.Navigator>
       </NavigationContainer>

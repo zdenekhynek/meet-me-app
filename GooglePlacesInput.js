@@ -2,10 +2,14 @@ import React, { useState, useRef } from "react";
 import { View, StyleSheet, Image, Text, TextInput } from "react-native";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 
+const LARGE_HEIGHT = 70;
+const SMALL_HEIGHT = 54;
+
 const GooglePlacesInput = ({
   apiKey,
   value = "",
   index = 0,
+  theme="large",
   placeholder,
   onChange,
 }) => {
@@ -15,16 +19,31 @@ const GooglePlacesInput = ({
   // const [value, setValue] = useState("Useless Placeholder");
 
   //  dynamic height based on whether the input is in focus
-  const height = isFocused ? 120 : 54;
+  const themeHeight = theme === "large"? LARGE_HEIGHT: SMALL_HEIGHT;
+  const padding = theme === "large"? 10: 0;
+  const textInputHeight = themeHeight - 12;
+  const height = isFocused ? 200 : themeHeight;
   const zIndex = isFocused ? 2 : 1;
-  const top = 17 + index * 54;
+  let top = index * (themeHeight);
+
+  //  small style adjustment
+  if (top && theme === "large") {
+    top += 5;
+  }
 
   React.useEffect(() => {
     ref.current.setAddressText(value);
   }, []);
 
+  const backgroundColor = index === 0 ? "#dd007d" : "#006bb8";
+  const placeholderColor =
+    index === 0 ? "rgba(221,0,125,0.6)" : "rgba(0,107,184,0.6)";
+  const textInputPadding = theme === "large"? 5: 20;
+  const textInputMargin = theme === "large"? 20: 5;
+  const textInputBackground = theme === "large"? "#fff": backgroundColor;
+
   return (
-    <View style={[styles.container, { top, zIndex, height }]}>
+    <View style={[styles.container, { top, zIndex, height, padding }]}>
       <GooglePlacesAutocomplete
         ref={ref}
         placeholder={placeholder}
@@ -55,19 +74,34 @@ const GooglePlacesInput = ({
           language: "en",
           components: "country:uk",
         }}
+        placeholderTextColor={placeholderColor}
         styles={{
           textInputContainer: {
-            backgroundColor: "rgba(0,0,0,0)",
+            backgroundColor: textInputBackground,
+            height: themeHeight,
+            paddingTop: 5,
+            paddingBottom: 5,
             borderTopWidth: 0,
             borderBottomWidth: 0,
           },
           textInput: {
             marginTop: 0,
-            marginLeft: 0,
-            marginRight: 0,
-            height: 38,
-            color: "#5d5d5d",
+            marginLeft: textInputMargin,
+            marginRight: textInputMargin,
+            paddingLeft: textInputPadding,
+            paddingRight: textInputPadding,
+            height: textInputHeight,
+            color: backgroundColor,
+            borderColor: backgroundColor,
+            borderBottomWidth: 1,
             fontSize: 16,
+          },
+          listView: {
+            marginLeft: 20,
+            marginRight: 20,
+            marginTop: 10,
+            marginBottom: 10,
+            backgroundColor: "#fff",
           },
           predefinedPlacesDescription: {
             color: "#1faadb",
@@ -85,8 +119,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     justifyContent: "center",
-    backgroundColor: "#ecf0f1",
-    padding: 8,
+    backgroundColor: "#fff",
+    padding: 10,
   },
 });
 
