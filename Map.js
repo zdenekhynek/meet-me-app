@@ -42,7 +42,7 @@ export default class Map extends Component {
         },
       ];
       this.mapRef.fitToCoordinates(coords, {
-        edgePadding: { top: 100, bottom: 140, left: 20, right: 20 },
+        edgePadding: { top: 100, bottom: 180, left: 20, right: 20 },
       });
     }
   }
@@ -113,7 +113,15 @@ export default class Map extends Component {
         )}
         {polylines.map((polyline, i) => {
           const coordinates = convertArrayToLatLng(polyline);
-          return <Polyline key={i} coordinates={coordinates} />;
+          const strokeColor = i === 0 ? "#dd007d" : "#006bb8";
+          return (
+            <Polyline
+              key={i}
+              strokeColor={strokeColor}
+              strokeWidth={2}
+              coordinates={coordinates}
+            />
+          );
         })}
       </MapView>
     );

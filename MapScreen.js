@@ -47,14 +47,6 @@ export const fetchJourney = async (from, to) => {
 
 export default function MapScreen({ navigation }) {
   const [isLoading, setIsLoading] = useState(false);
-  // const [from, setFrom] = useState([51.5698452, -0.0957309]);
-  // const [to, setTo] = useState([51.4989235, -0.0817248]);
-  // const [from, setFrom] = useState(null);
-  // const [to, setTo] = useState(null);
-  // const [midpoint, setMidpoint] = useState(null);
-  // const [polylines, setPolylines] = useState([]);
-
-  // const [destination, setDestination] = useState("");
   const journeyContext = useContext(JourneyContext);
 
   const getJourneys = useCallback(async () => {
@@ -110,6 +102,10 @@ export default function MapScreen({ navigation }) {
     journeyContext.setPolylines([]);
   });
 
+  const midpoint = journeyContext.destination
+    ? journeyContext.destination.coord
+    : journeyContext.midpoint;
+
   return (
     <SafeAreaView style={styles.container}>
       <GooglePlacesInput
@@ -131,7 +127,7 @@ export default function MapScreen({ navigation }) {
       <Map
         from={journeyContext.from && journeyContext.from.coords}
         to={journeyContext.to && journeyContext.to.coords}
-        midpoint={journeyContext.midpoint}
+        midpoint={midpoint}
         polylines={journeyContext.polylines}
         onFromChange={handleFromChange}
         onToChange={handleToChange}
@@ -144,8 +140,10 @@ export default function MapScreen({ navigation }) {
       {journeyContext.destination ? (
         <View style={styles.destination}>
           <Button
-            title={`Meet at ${journeyContext.destination}.`}
+            title={`Meet at ${journeyContext.destination.name}.`}
             buttonStyle={{
+              paddingTop: 20,
+              paddingBottom: 20,
               backgroundColor: "#362983",
               borderRadius: 0,
             }}

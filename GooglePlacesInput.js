@@ -11,7 +11,9 @@ const GooglePlacesInput = ({
   index = 0,
   theme="large",
   placeholder,
-  onChange,
+  onChange = () => {},
+  onFocus = () => {},
+  onBlur = () => {},
 }) => {
   const ref = useRef();
 
@@ -53,9 +55,11 @@ const GooglePlacesInput = ({
         textInputProps={{
           onFocus: () => {
             setIsFocused(true);
+            onFocus();
           },
           onBlur: () => {
             setIsFocused(false);
+            onBlur();
           },
         }}
         onPress={(data, details = null) => {

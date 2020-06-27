@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useContext } from "react";
 import { Image, View, Text, StyleSheet } from "react-native";
-import { Button } from 'react-native-elements';
+import { Button } from "react-native-elements";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -17,6 +17,7 @@ import JourneyProvider from "./JourneyProvider";
 
 function HomeScreen({ navigation }) {
   const [isLoading, setIsLoading] = useState(true);
+  const [isFocused, setIsFocused] = useState(false);
   const journeyContext = useContext(JourneyContext);
 
   const getJourneys = useCallback(async () => {
@@ -62,55 +63,75 @@ function HomeScreen({ navigation }) {
     journeyContext.setTo({ name, coords });
   });
 
+  const handleOnFocus = useCallback(() => {
+    setIsFocused(true);
+  });
+
+  const handleOnBlur = useCallback(() => {
+    setIsFocused(false);
+  });
+
   useEffect(() => {
     if (journeyContext.from && journeyContext.to) {
       getJourneys();
     }
   }, [journeyContext.from, journeyContext.to]);
 
-  const buttonLabel = isLoading ? "Calculating your journeys..." : "See your journeys";
+  const buttonLabel = isLoading
+    ? "Calculating your journeys..."
+    : "See your journeys";
 
   const shouldDisplayBtn = journeyContext.from && journeyContext.to;
-  const buttonOpacity = shouldDisplayBtn? 1 : 0;
+  const buttonOpacity = shouldDisplayBtn ? 1 : 0;
+  const marginTop = isFocused ? -340 : 0;
+  const logoOpacity = isFocused ? 0 : 1;
 
   return (
     <View style={styles.container}>
-      <Image source={require("./assets/logo.png")} style={styles.logo} />
+      <Image
+        source={require("./assets/logo.png")}
+        style={[styles.logo, { marginTop, opacity: logoOpacity }]}
+      />
       <View style={styles.inputWrapper}>
         <GooglePlacesInput
           index={0}
+          value={journeyContext.from && journeyContext.from.name}
           placeholder="Type your address"
           apiKey={process.env.REACT_NATIVE_GOOGLE_MAPS_API_KEY}
           onChange={handleFromChange}
+          onFocus={handleOnFocus}
+          onBlur={handleOnBlur}
         />
         <GooglePlacesInput
           index={1}
+          value={journeyContext.to && journeyContext.to.name}
           placeholder="Type friend's address"
           apiKey={process.env.REACT_NATIVE_GOOGLE_MAPS_API_KEY}
           onChange={handleToChange}
+          onFocus={handleOnFocus}
+          onBlur={handleOnBlur}
         />
       </View>
-        <Button
-          title={buttonLabel}
-          disabled={isLoading}
-          onPress={() => {
-            navigation.navigate("Map");
-          }}
-          containerStyle={{
-            opacity: buttonOpacity,
-          }}
-          buttonStyle={{
-            width: "100%",
-            padding: 15,
-            backgroundColor: "#362983",
-          }}
-          titleStyle={{
-            padding: 20,
-          }}
-          icon={!isLoading && <Icon name="arrow-right" size={15} color="white" />}
-          iconRight
-        />
-      
+      <Button
+        title={buttonLabel}
+        disabled={isLoading}
+        onPress={() => {
+          navigation.navigate("Map");
+        }}
+        containerStyle={{
+          opacity: buttonOpacity,
+        }}
+        buttonStyle={{
+          width: "100%",
+          padding: 15,
+          backgroundColor: "#362983",
+        }}
+        titleStyle={{
+          padding: 20,
+        }}
+        icon={!isLoading && <Icon name="arrow-right" size={15} color="white" />}
+        iconRight
+      />
 
       {/* {isLoading ? (
         <View style={styles.loader}>
@@ -161,7 +182,7 @@ function App() {
           <Stack.Screen
             name="Home"
             component={HomeScreen}
-            options={{ title: "MeetMe" }}
+            options={{ title: "" }}
           />
           <Stack.Screen
             name="Map"
