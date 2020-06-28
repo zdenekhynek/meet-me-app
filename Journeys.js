@@ -1,4 +1,3 @@
-
 export const concatLegs = (legs) => {
   return legs.reduce((acc, leg) => {
     return acc.concat(leg.coords);
@@ -23,26 +22,25 @@ export const getJourneyApiUrl = (
 export const parseJourneys = (data) => {
   const { journeys, midpoint, destination } = data;
 
+  let polylines = null;
+  let directions = null;
+
   if (journeys) {
-    const journeyPolylines = journeys.map((journey) => {
+    polylines = journeys.map((journey) => {
       if (!journey) {
         return [];
       }
       const { legs } = journey;
       return legs ? concatLegs(legs) : [];
     });
-    const directions = journeys.map((journey) => {
+    directions = journeys.map((journey) => {
       const { legs } = journey;
       return getDirections(legs);
     });
-
-    journeyContext.setPolylines(journeyPolylines);
-    journeyContext.setDestination(data.destination);
-    journeyContext.setDirections(directions);
   }
 
   return { midpoint, polylines, destination, directions };
-}
+};
 
 export const fetchJourney = async (from, to) => {
   const url = getJourneyApiUrl(

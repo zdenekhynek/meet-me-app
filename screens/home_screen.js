@@ -4,7 +4,7 @@ import { Button } from "react-native-elements";
 import Icon from "react-native-vector-icons/FontAwesome";
 
 import GooglePlacesInput from "../components/google_places_input";
-import { fetchJourney } from "../Journeys";
+import { fetchJourney } from "../journeys";
 import JourneyContext from "../journey_context";
 
 export default function HomeScreen({ navigation }) {
@@ -24,7 +24,7 @@ export default function HomeScreen({ navigation }) {
       journeyContext.setMidpoint(midpoint);
     }
 
-    if (journeys) {
+    if (polylines) {
       journeyContext.setPolylines(polylines);
       journeyContext.setDestination(destination);
       journeyContext.setDirections(directions);

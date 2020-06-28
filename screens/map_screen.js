@@ -4,9 +4,9 @@ import { Button } from "react-native-elements";
 import Icon from "react-native-vector-icons/FontAwesome";
 
 import JourneyContext from "../journey_context";
-import { fetchJourney, concatLegs, getDirections } from "../Journeys";
+import { fetchJourney } from "../journeys";
 import GooglePlacesInput from "../components/google_places_input";
-import Map from "../components/Map";
+import Map from "../components/map";
 
 export default function MapScreen({ navigation }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -24,7 +24,7 @@ export default function MapScreen({ navigation }) {
       journeyContext.setMidpoint(midpoint);
     }
 
-    if (journeys) {
+    if (polylines) {
       journeyContext.setPolylines(polylines);
       journeyContext.setDestination(destination);
       journeyContext.setDirections(directions);
