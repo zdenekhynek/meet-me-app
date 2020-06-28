@@ -1,6 +1,6 @@
 # MeetMe App
 
-React Native app which picks and gives directions to a convenient location to travel to from two addresses in London, UK.
+React Native app which picks and gives directions to a convenient location to travel to from two addresses in London, UK. Built with Expo.
 
 ![Home Screen](./home-screen.png)
 ![Map Screen](./map-screen.png)
@@ -41,5 +41,6 @@ Before running `npm run start`.
 
 ## Deployment
 
-build
-test flight
+```
+expo build:ios
+```
