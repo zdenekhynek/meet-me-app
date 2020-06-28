@@ -3,47 +3,10 @@ import { StyleSheet, Text, View, SafeAreaView } from "react-native";
 import { Button } from "react-native-elements";
 import Icon from "react-native-vector-icons/FontAwesome";
 
-import JourneyContext from "./JourneyContext";
-import GooglePlacesInput from "./GooglePlacesInput";
-import Map from "./Map";
-
-export const concatLegs = (legs) => {
-  return legs.reduce((acc, leg) => {
-    return acc.concat(leg.coords);
-  }, []);
-};
-
-export const getDirections = (legs = []) => {
-  return legs.map((leg) => {
-    return leg.summary;
-  });
-};
-
-export const getJourneyApiUrl = (
-  hostUrl,
-  fromString = "0,0",
-  toString = "0,0"
-) => {
-  const endpoint = "api/v1/directions";
-  return `${hostUrl}/${endpoint}/${fromString}/${toString}`;
-};
-
-export const fetchJourney = async (from, to) => {
-  const url = getJourneyApiUrl(
-    process.env.REACT_NATIVE_APP_JOURNEY_API_HOST,
-    from.join(","),
-    to.join(",")
-  );
-
-  console.log("fetchingJourney from url", url);
-  const result = await fetch(url);
-
-  if (result.ok) {
-    return (await result.json()).data;
-  } else {
-    console.error("Error fetching journeys from API");
-  }
-};
+import JourneyContext from "../journey_context";
+import { fetchJourney, concatLegs, getDirections } from "../Journeys";
+import GooglePlacesInput from "../components/google_places_input";
+import Map from "../components/Map";
 
 export default function MapScreen({ navigation }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -51,33 +14,22 @@ export default function MapScreen({ navigation }) {
 
   const getJourneys = useCallback(async () => {
     setIsLoading(true);
-    const data = await fetchJourney(
+
+    const { midpoint, polylines, destination, directions } = await fetchJourney(
       journeyContext.from.coords,
       journeyContext.to.coords
     );
-    const { journeys, midpoint } = data;
 
     if (midpoint) {
       journeyContext.setMidpoint(midpoint);
     }
 
     if (journeys) {
-      const journeyPolylines = journeys.map((journey) => {
-        if (!journey) {
-          return [];
-        }
-        const { legs } = journey;
-        return legs ? concatLegs(legs) : [];
-      });
-      const directions = journeys.map((journey) => {
-        const { legs } = journey;
-        return getDirections(legs);
-      });
-
-      journeyContext.setPolylines(journeyPolylines);
-      journeyContext.setDestination(data.destination);
+      journeyContext.setPolylines(polylines);
+      journeyContext.setDestination(destination);
       journeyContext.setDirections(directions);
     }
+
     setIsLoading(false);
   }, [journeyContext.from, journeyContext.to]);
 

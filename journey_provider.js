@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import JourneyContext from "./JourneyContext";
+import JourneyContext from "./journey_context";
 
 export default (props) => {
   const [from, setFromState] = useState(null);

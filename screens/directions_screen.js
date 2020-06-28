@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { StyleSheet, View, Text, SafeAreaView, FlatList } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 
-import JourneyContext from "./JourneyContext";
+import JourneyContext from "../journey_context";
 
 const Item = ({ title, index }) => (
   <View style={styles.item}>
